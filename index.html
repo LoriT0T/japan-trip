@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1115">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Japan Trip Navigator</title>
+<style>
+  :root{ --bg:#0f1115; --card:#1a1d24; --line:#2a2f3a; --txt:#f2f4f8; --sub:#9aa3b2; --go:#e63946; --view:#3a86ff; --call:#2dc653; --acc:#ffd166; --done:#4f5663; }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body{ margin:0; background:var(--bg); color:var(--txt);
+        font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+        padding:env(safe-area-inset-top) 0 60px; }
+  .wrap{ padding:16px 14px; max-width:560px; margin:0 auto; }
+  h1{ font-size:20px; margin:2px 0; }
+  .hint{ color:var(--sub); font-size:13px; margin:6px 0 8px; line-height:1.45; }
+  .bar{ display:flex; gap:8px; margin:10px 0 16px; flex-wrap:wrap; }
+  .bar button{ background:var(--card); color:var(--txt); border:1px solid var(--line);
+        border-radius:999px; padding:8px 14px; font-size:13px; font-weight:600; }
+  details{ background:var(--card); border:1px solid var(--line); border-radius:14px; margin:0 0 12px; overflow:hidden; }
+  details.today{ border-color:var(--go); }
+  summary{ list-style:none; cursor:pointer; padding:14px 16px; font-size:16px; font-weight:700; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  summary::-webkit-details-marker{ display:none; }
+  .dtitle .area{ display:block; color:var(--sub); font-weight:500; font-size:12px; margin-top:3px; }
+  .badge{ font-size:11px; font-weight:700; color:#0f1115; background:var(--acc); border-radius:999px; padding:3px 8px; white-space:nowrap; }
+  .prog{ font-size:11px; color:var(--sub); font-weight:600; }
+  .stop{ display:flex; align-items:flex-start; gap:11px; padding:13px 14px; border-top:1px solid var(--line); }
+  .num{ flex:0 0 28px; height:28px; margin-top:1px; border-radius:50%; background:#262b35; color:var(--txt);
+        font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; cursor:pointer; user-select:none; }
+  .stop.done .num{ background:var(--call); color:#08210f; }
+  .stop.done .name{ text-decoration:line-through; color:var(--done); }
+  .meta{ flex:1 1 auto; min-width:0; }
+  .name{ font-size:15px; font-weight:600; line-height:1.25; }
+  .note{ color:var(--sub); font-size:12px; margin-top:3px; line-height:1.45; }
+  .trip{ color:#8fb3ff; } .entry{ color:#9be7b4; }
+  .btns{ display:flex; flex-direction:column; gap:6px; flex:0 0 auto; align-items:stretch; }
+  a.act{ text-decoration:none; text-align:center; font-weight:700; font-size:13px; padding:8px 12px; border-radius:10px; white-space:nowrap; }
+  .go{ background:var(--go); color:#fff; }
+  .call{ background:transparent; color:var(--call); border:1px solid var(--call); font-size:12px; padding:6px 12px; }
+  .view{ color:var(--view); font-size:12px; text-align:center; text-decoration:none; }
+  .opt .name::after{ content:" (opt)"; color:var(--sub); font-weight:500; font-size:12px; }
+  footer{ color:var(--sub); font-size:12px; line-height:1.6; margin-top:18px; border-top:1px solid var(--line); padding-top:14px; }
+  footer b{ color:var(--txt); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Japan Trip 🇯🇵</h1>
+  <p class="hint">Tap <b style="color:var(--go)">Navigate</b> to route there from where you are. Tap the <b>number</b> to check a stop off. 🚃 transport · 🎟 entry.</p>
+  <div class="bar">
+    <button id="today">📍 Jump to today</button>
+    <button id="expand">Expand all</button>
+    <button id="reset">Reset checks</button>
+  </div>
+  <div id="days"></div>
+  <footer>
+    <b>Emergency:</b> Police 110 · Fire/Ambulance 119 · <b>Bases:</b> Keio Plaza (Tokyo) · LIBER (Osaka).<br>
+    Offline tip: in Google Maps, download "Tokyo" & "Osaka" maps before you go. This app opens offline; live directions need data.
+  </footer>
+</div>
+
+<script>
+const TRIP = [
+ {date:"2026-06-22", title:"Jun 22 · Mon — WEST", area:"Sumo + Shibuya/Harajuku · base: Keio Plaza", stops:[
+   {name:"Tokyo Metropolitan Gov Building", time:"09:30 · free deck", trip:"5-min walk from hotel (Tochomae)", pid:"ChIJnctryNSMGGARLv4MknPFseU", q:"Tokyo Metropolitan Government Building", phone:"+81335207890", walk:true},
+   {name:"Sumo Show — Sekisaku Bldg 2F", time:"11:00", trip:"~15-min walk, or JR Chuo-Sobu Shinjuku→Okubo", entry:"Enter by the door next to Daiso → 2F. Show QR; late entry refused; welcome drink incl.", pid:"ChIJk2SlFiGNGGARjl0jVGPDnjY", q:"Sekisaku Building Shinjuku"},
+   {name:"Meiji Jingu", time:"13:00", trip:"JR Yamanote Shinjuku→Harajuku (~4 min)", pid:"ChIJ5SZMmreMGGARcz8QSTiJyo8", q:"Meiji Jingu", phone:"+81333795511"},
+   {name:"Kaiten Sushi Ginza Onodera", time:"lunch · Omotesando", trip:"~10-min walk / Chiyoda Meiji-jingumae→Omotesando", pid:"ChIJyZOxItGNGGARWwp9_I4dZDA", q:"Ginza Onodera Omotesando", phone:"+815030851700", walk:true},
+   {name:"Higuma Doughnuts", time:"coffee/donuts", trip:"2-min walk", pid:"ChIJB4nX_beNGGARcvfg36ImbP8", q:"Higuma Doughnuts", phone:"+81368043163", walk:true},
+   {name:"Takeshita Street", time:"Harajuku", trip:"~7-min walk", q:"Takeshita Street Harajuku", walk:true},
+   {name:"Shibuya Crossing", time:"16:00", trip:"JR Yamanote Harajuku→Shibuya (1 stop)", pid:"ChIJK9EM68qLGGARacmu4KJj5SA", q:"Shibuya Crossing"},
+   {name:"Shibuya Sky", time:"17:30 · sunset (booked)", trip:"Same building — Shibuya Scramble Square", entry:"Entrance 14F. Scan QR (20-min window). Bags → 46F lockers.", pid:"ChIJ4Rr2JWiLGGARcyRSHuZ-9G8", q:"Shibuya Sky", walk:true},
+   {name:"Fūunji ramen", time:"dinner · then Kabukicho + Hanazono", trip:"JR Yamanote Shibuya→Shinjuku (~6 min)", pid:"ChIJ508frs-MGGARnIKrb_tkai0", q:"Fuunji Shinjuku"}
+ ]},
+ {date:"2026-06-23", title:"Jun 23 · Tue — CENTRAL → SOUTH", area:"Samurai + Ginza + Azabudai · fullest day", stops:[
+   {name:"Shinjuku Gyoen", time:"09:00 · garden", opt:true, trip:"~10-min walk, or Marunouchi to Shinjuku-gyoemmae", pid:"ChIJPyOTG8KMGGARh_IXobWxHmo", q:"Shinjuku Gyoen", phone:"+81333500151", walk:true},
+   {name:"Samurai Restaurant", time:"10:30 show (booked)", trip:"~12-min walk to Kabukicho", entry:"Kabukicho 1-7-7 B1F — redeem at the Gira Gira Girls desk. Arrive 15 min early; ID (18+).", pid:"ChIJ9eLvweSNGGARpLA8HtSkuC0", q:"Samurai Restaurant Kabukicho", phone:"+81362056100", walk:true},
+   {name:"Tsukiji Outer Market + Seagen", time:"12:00 · lunch", trip:"Toei Oedo Shinjuku→Tsukijishijo (~25 min)", entry:"Seagen closed Wed/Thu.", pid:"ChIJ1x_6sReLGGARAzSUSIFloxs", q:"Tsukiji Outer Market", phone:"+81362604808", transit:true},
+   {name:"Imperial Palace East Gardens", time:"13:30", opt:true, trip:"Hibiya Tsukiji→Otemachi (~8 min)", pid:"ChIJPfFaQhOMGGAR-QPbNQoAG6M", q:"Imperial Palace East Gardens", phone:"+81332132050"},
+   {name:"Ginza + Art Aquarium", time:"14:30 · Mitsukoshi 9F", trip:"Marunouchi Otemachi→Ginza", pid:"ChIJ6UVSHl2JGGARDurMrMPwvdk", q:"Art Aquarium Ginza", phone:"+81335286721"},
+   {name:"Hie Shrine", time:"16:00 · Akasaka", opt:true, trip:"Ginza line Ginza→Tameike-sanno (~8 min)", pid:"ChIJF0MR5MSmH2ARj3x0ov0aQ-8", q:"Hie Shrine Tokyo", phone:"+81335812471"},
+   {name:"Tokyo Tower", time:"16:45", trip:"to Kamiyacho/Akabanebashi (~12 min)", pid:"ChIJCewJkL2LGGAR3Qmk0vCTGkg", q:"Tokyo Tower", phone:"+81334335111"},
+   {name:"Azabudai Sky Lobby", time:"17:30 · 34F view", trip:"~8-min walk; lift by Hermès to 34F", pid:"ChIJ0bV6TSiLGGARyYzP8x8btPs", q:"Azabudai Sky Lobby", phone:"+81364338100", walk:true},
+   {name:"teamLab Borderless", time:"18:00 · booked slot", trip:"Same complex — Garden Plaza B, B1", entry:"Arrive 10 min early; show QR; wear pants; same-day re-entry OK.", pid:"ChIJQ5Sa1PqJGGARUSaNKKOrMVg", q:"teamLab Borderless", phone:"+81362309666", walk:true},
+   {name:"YORONIKU", time:"20:00 · dinner (reserved)", trip:"Same complex (Azabudai Hills, 3F)", entry:"Give the reservation name; private-room yakiniku.", pid:"ChIJlxvZDOCLGGARQ10Mv2O_HA4", q:"Yoroniku Azabudai", phone:"+81355494629", walk:true}
+ ]},
+ {date:"2026-06-24", title:"Jun 24 · Wed — EAST", area:"Kimono + Skytree + Akihabara", stops:[
+   {name:"Kimono + Sensō-ji (Asakusa)", time:"09:30 · + Nakamise + Kappabashi", trip:"~40 min Metro to Asakusa", entry:"Change at your kimono shop first; return by ~5pm.", pid:"ChIJ8T1GpMGOGGARDYGSgpooDWw", q:"Senso-ji", phone:"+81338420181", transit:true},
+   {name:"Tokyo Skytree + Toriton", time:"13:15 · lunch Solamachi 6F", trip:"Tobu Asakusa→Skytree (1 stop, ~3 min)", pid:"ChIJ35ov0dCOGGARKvdDH7NPHX0", q:"Tokyo Skytree", phone:"+81356377716"},
+   {name:"Akihabara", time:"15:30 · Electric Town", trip:"~15-20 min via Asakusa → Ginza line", pid:"ChIJzdWdgh2MGGARh4kg2pVZL3c", q:"Akihabara Electric Town"},
+   {name:"Hunters Bar", time:"19:00 · dinner", trip:"5-min walk", pid:"ChIJ1yJboNmMGGAROQ_3m68YQfU", q:"Hunters Bar Akihabara", phone:"+81120196759", walk:true}
+ ]},
+ {date:"2026-06-25", title:"Jun 25 · Thu — Tokyo → Osaka", area:"Travel day", stops:[
+   {name:"Shinkansen: Tokyo Stn → Shin-Osaka", time:"~10:45 · ~2h30 (book SmartEX)", trip:"Shinjuku → Tokyo Station first", q:"Tokyo Station", walk:false},
+   {name:"LIBER Hotel — check in", time:"~14:00", trip:"JR Loop → Nishikujo → Yumesaki line", pid:"ChIJafF5azTpAGARWJn-33drztw", q:"LIBER Hotel Osaka", phone:"+81664623333"}
+ ]},
+ {date:"2026-06-26", title:"Jun 26 · Fri — OSAKA city", area:"base: LIBER Hotel", stops:[
+   {name:"Osaka Castle", time:"09:30", trip:"JR Yumesaki + Loop → Osakajokoen (~35 min)", pid:"ChIJ_TooXM3gAGARQR6hXH3QAQ8", q:"Osaka Castle", phone:"+81669413044"},
+   {name:"Kuromon Ichiba Market", time:"12:00 · lunch", trip:"to Nipponbashi (~20 min)", pid:"ChIJXSJB5UHnAGARQcEjvngsHaw", q:"Kuromon Ichiba Market", phone:"+81666310007"},
+   {name:"Dotonbori", time:"13:30", trip:"~8-min walk", pid:"ChIJg2DcJhXnAGARCbeAHoZrPeQ", q:"Dotonbori", walk:true},
+   {name:"Tsutenkaku / Shinsekai", time:"15:30", trip:"Sakaisuji Nipponbashi→Ebisucho (~6 min)", pid:"ChIJ_0Lgd2DnAGARV0X03lbPy-U", q:"Tsutenkaku", phone:"+81666419555"},
+   {name:"Umeda Sky Building", time:"18:00 · sunset", trip:"Midosuji → Umeda (~15 min) + walk", pid:"ChIJbyd0kIjmAGAR_crecCbjwlc", q:"Umeda Sky Building"}
+ ]},
+ {date:"2026-06-27", title:"Jun 27 · Sat — KYOTO", area:"day trip · ~1h each way", stops:[
+   {name:"Fushimi Inari Taisha", time:"08:45 · go early", trip:"LIBER → Osaka → JR Kyoto → Inari (~70 min)", pid:"ChIJIW0uPRUPAWAR6eI6dRzKGns", q:"Fushimi Inari Taisha", phone:"+81756417331"},
+   {name:"Kiyomizu-dera", time:"11:30", trip:"Keihan → Kiyomizu-Gojo + walk (~25 min)", pid:"ChIJB_vchdMIAWARujTEUIZlr2I", q:"Kiyomizu-dera", phone:"+81755511234"},
+   {name:"Gion", time:"13:30 · lunch", trip:"~15-min walk via Sannenzaka", pid:"ChIJZ3vGwcMIAWARtO-YE6oEyw0", q:"Gion Kyoto", walk:true},
+   {name:"Arashiyama Bamboo Forest", time:"15:30", trip:"Keihan + Hankyu/JR (~45 min)", pid:"ChIJrYtcv-urAWAR3XzWvXv8n_s", q:"Arashiyama Bamboo Grove"}
+ ]},
+ {date:"2026-06-28", title:"Jun 28 · Sun — NARA", area:"deer park · stops walkable", stops:[
+   {name:"Nara Park (deer)", time:"10:00", trip:"LIBER → Osaka → Kintetsu-Nara (~70 min)", pid:"ChIJYWCMvZY5AWARVnREV_OsbPk", q:"Nara Park", phone:"+81742220375"},
+   {name:"Tōdai-ji", time:"10:45 · Great Buddha", trip:"~12-min walk", pid:"ChIJ3XYIepA5AWARjzzVnT-skPg", q:"Todai-ji", phone:"+81742225511", walk:true},
+   {name:"Kasuga Taisha", time:"12:30", trip:"~12-min walk", pid:"ChIJ1Wqwa8A5AWARlpXjgoPnl0w", q:"Kasuga Taisha", phone:"+81742227788", walk:true}
+ ]},
+ {date:"2026-06-29", title:"Jun 29 · Mon — USJ + onsen", area:"base: LIBER Hotel", stops:[
+   {name:"Universal Studios Japan", time:"09:00", trip:"JR Sakurajima→Universal City (~6 min)", entry:"Main gate. Have Studio Pass + Express Pass QR ready; arrive before opening.", pid:"ChIJXeLVg9DgAGARqlIyMCX-BTY", q:"Universal Studios Japan", phone:"+81570200606"},
+   {name:"Solaniwa Onsen", time:"19:00 · private bath (reserved)", trip:"JR to Bentencho (~12 min)", entry:"Reception → give your private-bath (kashikiri) reservation.", pid:"ChIJh2z_4A3nAGARROaafpvGXBQ", q:"Solaniwa Onsen", phone:"+81667705126"}
+ ]},
+ {date:"2026-06-30", title:"Jun 30 · Tue — Osaka → Tokyo → Home", area:"Big travel day", stops:[
+   {name:"Shinkansen Shin-Osaka → Tokyo", time:"~13:30 · ~2h30", trip:"Leave Osaka early afternoon", q:"Shin-Osaka Station"},
+   {name:"Narita Airport T2", time:"be there ~19:25 · QR807 dep 22:25", trip:"Tokyo → Narita N'EX (~80-90 min)", q:"Narita Airport Terminal 2"}
+ ]}
+];
+
+const enc = encodeURIComponent;
+function dirUrl(s){
+  const dest = s.pid ? (enc(s.q)+'&destination_place_id='+s.pid) : enc(s.q);
+  const mode = s.walk ? 'walking' : 'transit';
+  return 'https://www.google.com/maps/dir/?api=1&destination='+dest+'&travelmode='+mode;
+}
+function viewUrl(s){
+  return 'https://www.google.com/maps/search/?api=1&query='+enc(s.q)+(s.pid?('&query_place_id='+s.pid):'');
+}
+function load(){ try{ return JSON.parse(localStorage.getItem('jp_done')||'{}'); }catch(e){ return {}; } }
+function save(o){ try{ localStorage.setItem('jp_done', JSON.stringify(o)); }catch(e){} }
+let done = load();
+
+function key(di,si){ return di+'-'+si; }
+function render(){
+  const today = new Date().toISOString().slice(0,10);
+  const root = document.getElementById('days');
+  root.innerHTML='';
+  TRIP.forEach((day,di)=>{
+    const total = day.stops.length;
+    const cnt = day.stops.filter((_,si)=>done[key(di,si)]).length;
+    const det = document.createElement('details');
+    det.dataset.date = day.date;
+    if(day.date===today){ det.open=true; det.classList.add('today'); }
+    const sum = document.createElement('summary');
+    sum.innerHTML = `<span class="dtitle">${day.title}<span class="area">${day.area}</span></span>`+
+      (day.date===today?`<span class="badge">TODAY</span>`:`<span class="prog">${cnt}/${total}</span>`);
+    det.appendChild(sum);
+    day.stops.forEach((s,si)=>{
+      const row = document.createElement('div');
+      row.className='stop'+(s.opt?' opt':'')+(done[key(di,si)]?' done':'');
+      const phoneBtn = s.phone ? `<a class="act call" href="tel:${s.phone}">Call</a>` : '';
+      const entry = s.entry ? `<br><span class="entry">🎟 ${s.entry}</span>` : '';
+      row.innerHTML =
+        `<div class="num" data-d="${di}" data-s="${si}">${done[key(di,si)]?'✓':(si+1)}</div>`+
+        `<div class="meta"><div class="name">${s.name}</div>`+
+          `<div class="note">${s.time}<br><span class="trip">🚃 ${s.trip}</span>${entry}</div></div>`+
+        `<div class="btns"><a class="act go" target="_blank" rel="noopener" href="${dirUrl(s)}">Navigate ▶</a>`+
+          phoneBtn+`<a class="view" target="_blank" rel="noopener" href="${viewUrl(s)}">📍 view</a></div>`;
+      det.appendChild(row);
+    });
+    root.appendChild(det);
+  });
+  document.querySelectorAll('.num').forEach(n=>{
+    n.addEventListener('click', ()=>{
+      const k = key(n.dataset.d, n.dataset.s);
+      done[k] = !done[k]; save(done); render();
+    });
+  });
+}
+render();
+
+document.getElementById('today').addEventListener('click', ()=>{
+  const t = document.querySelector('details.today') || document.querySelector('details');
+  if(t){ t.open=true; t.scrollIntoView({behavior:'smooth', block:'start'}); }
+});
+document.getElementById('expand').addEventListener('click', (e)=>{
+  const ds = document.querySelectorAll('details');
+  const anyClosed = [...ds].some(d=>!d.open);
+  ds.forEach(d=>d.open=anyClosed);
+  e.target.textContent = anyClosed ? 'Collapse all' : 'Expand all';
+});
+document.getElementById('reset').addEventListener('click', ()=>{
+  if(confirm('Clear all checked-off stops?')){ done={}; save(done); render(); }
+});
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>
