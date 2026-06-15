@@ -43,8 +43,10 @@
   .prog{ font-size:11px; color:var(--sub); font-weight:600; }
   .map{ height:190px; width:100%; background:#11141a; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
   .pin{ background:var(--go); color:#fff; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px; border:2px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,.5); }
-  .stop{ display:flex; align-items:flex-start; gap:11px; padding:14px; border-top:1px solid var(--line); }
-  .icon{ flex:0 0 38px; height:38px; border-radius:10px; background:#262b35; display:flex; align-items:center; justify-content:center; font-size:20px; }
+  .stop{ border-top:1px solid var(--line); }
+  .photo{ width:100%; height:168px; object-fit:cover; display:none; background:#11141a; }
+  .stopbody{ display:flex; align-items:flex-start; gap:11px; padding:14px; }
+  .icon{ position:relative; flex:0 0 38px; height:38px; border-radius:10px; background:#262b35; display:flex; align-items:center; justify-content:center; font-size:20px; }
   .num{ position:absolute; margin:-8px 0 0 -8px; width:19px; height:19px; border-radius:50%; background:var(--go); color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; border:1.5px solid var(--card); cursor:pointer; }
   .stop.done .icon{ filter:grayscale(1) brightness(.7); }
   .stop.done .num{ background:var(--call); } .stop.done .name{ text-decoration:line-through; color:var(--sub); }
@@ -91,6 +93,7 @@
 
   <div class="bar">
     <button id="today">📍 Jump to today</button>
+    <button id="share">↗ Share</button>
     <button id="expand">Expand all</button>
     <button id="reset">Reset checks</button>
   </div>
@@ -101,70 +104,71 @@
   <footer>
     <b>Emergency in Japan:</b> Police 110 · Fire/Ambulance 119.<br>
     <b>Bases:</b> Keio Plaza (Tokyo) · LIBER (Osaka).<br>
-    Tip: in Google Maps, download "Tokyo" & "Osaka" offline maps before the trip.
+    Tip: in Google Maps, download "Tokyo" & "Osaka" offline maps before the trip.<br>
+    <span style="opacity:.7">Photos load from Wikimedia Commons when online.</span>
   </footer>
 </div>
 
 <script>
 const TRIP = [
  {date:"2026-06-22", e:"🗼", title:"Jun 22 · Mon — West Tokyo", sum:"Sumo show, Harajuku & Shibuya sunset", area:"Sumo + Shibuya/Harajuku · base: Keio Plaza", stops:[
-   {ic:"🏙️",tag:"Viewpoint",name:"Metropolitan Gov Building",desc:"Free 202m observation deck — a quick, no-ticket city panorama to open the day.",time:"09:30",trip:"5-min walk from hotel (Tochomae)",pid:"ChIJnctryNSMGGARLv4MknPFseU",q:"Tokyo Metropolitan Government Building",ll:[35.689733,139.6916563],phone:"+81335207890",walk:true},
+   {ic:"🏙️",tag:"Viewpoint",opt:true,name:"Metropolitan Gov Building",wiki:"Tokyo Metropolitan Government Building",desc:"Free 202m observation deck — an optional quick warm-up right by the hotel; skip if you want a slower start.",time:"09:30 (optional)",trip:"5-min walk from hotel (Tochomae)",pid:"ChIJnctryNSMGGARLv4MknPFseU",q:"Tokyo Metropolitan Government Building",ll:[35.689733,139.6916563],phone:"+81335207890",walk:true},
    {ic:"🤼",tag:"Show",name:"Sumo Show — Sekisaku Bldg 2F",desc:"Live demo by retired pro wrestlers; you can step in the ring, plus chanko-nabe hotpot.",time:"11:00",trip:"~15-min walk, or JR Chuo-Sobu Shinjuku→Okubo",entry:"Enter by the door next to Daiso → 2F. Show QR; late entry refused; welcome drink incl.",pid:"ChIJk2SlFiGNGGARjl0jVGPDnjY",q:"Sekisaku Building Shinjuku",ll:[35.7025151,139.7080267]},
-   {ic:"⛩️",tag:"Shrine",name:"Meiji Jingu",desc:"Tokyo's grand forest shrine — peaceful wooded paths in the middle of the city.",time:"13:00",trip:"JR Yamanote Shinjuku→Harajuku (~4 min)",pid:"ChIJ5SZMmreMGGARcz8QSTiJyo8",q:"Meiji Jingu",ll:[35.6763976,139.6993259],phone:"+81333795511"},
+   {ic:"⛩️",tag:"Shrine",name:"Meiji Jingu",wiki:"Meiji Shrine",desc:"Tokyo's grand forest shrine — peaceful wooded paths in the middle of the city.",time:"13:00",trip:"JR Yamanote Shinjuku→Harajuku (~4 min)",pid:"ChIJ5SZMmreMGGARcz8QSTiJyo8",q:"Meiji Jingu",ll:[35.6763976,139.6993259],phone:"+81333795511"},
    {ic:"🍣",tag:"Lunch",name:"Kaiten Sushi Ginza Onodera",desc:"High-end conveyor-belt sushi — premium fish at relatively friendly prices.",time:"lunch · Omotesando",trip:"~10-min walk / Chiyoda Meiji-jingumae→Omotesando",pid:"ChIJyZOxItGNGGARWwp9_I4dZDA",q:"Ginza Onodera Omotesando",ll:[35.665805,139.7100254],phone:"+815030851700",walk:true},
    {ic:"🍩",tag:"Coffee",name:"Higuma Doughnuts",desc:"Cult fresh-made fluffy doughnuts + good coffee for a quick break.",time:"coffee/donuts",trip:"2-min walk",pid:"ChIJB4nX_beNGGARcvfg36ImbP8",q:"Higuma Doughnuts",ll:[35.6677675,139.7104797],phone:"+81368043163",walk:true},
-   {ic:"🛍️",tag:"Street",name:"Takeshita Street",desc:"Harajuku's loud teen-fashion lane — crepes, kawaii shops, people-watching.",time:"Harajuku",trip:"~7-min walk",q:"Takeshita Street Harajuku",ll:[35.6710335,139.7051821],walk:true},
-   {ic:"🚦",tag:"Landmark",name:"Shibuya Crossing",desc:"The world's busiest scramble crossing — pure Tokyo energy. Hachiko statue nearby.",time:"16:00",trip:"JR Yamanote Harajuku→Shibuya (1 stop)",pid:"ChIJK9EM68qLGGARacmu4KJj5SA",q:"Shibuya Crossing",ll:[35.659482,139.7005596]},
-   {ic:"🌇",tag:"Viewpoint",name:"Shibuya Sky",desc:"Open-air rooftop deck at 229m — the best sunset view in the city (we booked it).",time:"17:30 · sunset",trip:"Same building — Shibuya Scramble Square",entry:"Entrance 14F. Scan QR (20-min window). Bags → 46F lockers before the roof.",pid:"ChIJ4Rr2JWiLGGARcyRSHuZ-9G8",q:"Shibuya Sky",ll:[35.6586719,139.7019848],walk:true},
+   {ic:"🛍️",tag:"Street",name:"Takeshita Street",wiki:"Takeshita Street",desc:"Harajuku's loud teen-fashion lane — crepes, kawaii shops, people-watching.",time:"Harajuku",trip:"~7-min walk",q:"Takeshita Street Harajuku",ll:[35.6710335,139.7051821],walk:true},
+   {ic:"🚦",tag:"Landmark",name:"Shibuya Crossing",wiki:"Shibuya Crossing",desc:"The world's busiest scramble crossing — pure Tokyo energy. Hachiko statue nearby.",time:"16:00",trip:"JR Yamanote Harajuku→Shibuya (1 stop)",pid:"ChIJK9EM68qLGGARacmu4KJj5SA",q:"Shibuya Crossing",ll:[35.659482,139.7005596]},
+   {ic:"🌇",tag:"Viewpoint",name:"Shibuya Sky",wiki:"Shibuya Scramble Square",desc:"Open-air rooftop deck at 229m — the best sunset view in the city (we booked it).",time:"17:30 · sunset",trip:"Same building — Shibuya Scramble Square",entry:"Entrance 14F. Scan QR (20-min window). Bags → 46F lockers before the roof.",pid:"ChIJ4Rr2JWiLGGARcyRSHuZ-9G8",q:"Shibuya Sky",ll:[35.6586719,139.7019848],walk:true},
    {ic:"🍜",tag:"Dinner",name:"Fūunji ramen",desc:"Legendary tsukemen (dip noodles) in a rich chicken-seafood broth. Then Kabukicho neon nightlife.",time:"dinner · then Kabukicho",trip:"JR Yamanote Shibuya→Shinjuku (~6 min)",pid:"ChIJ508frs-MGGARnIKrb_tkai0",q:"Fuunji Shinjuku",ll:[35.6868343,139.6966393]}
  ]},
  {date:"2026-06-23", e:"🎨", title:"Jun 23 · Tue — Central Tokyo", sum:"Samurai show, Ginza, teamLab & wagyu", area:"Samurai + Ginza + Azabudai · fullest day", stops:[
-   {ic:"🌿",tag:"Garden",opt:true,name:"Shinjuku Gyoen",desc:"Spacious landscaped garden — an optional calm start (closed Mondays).",time:"09:00",trip:"~10-min walk, or Marunouchi to Shinjuku-gyoemmae",pid:"ChIJPyOTG8KMGGARh_IXobWxHmo",q:"Shinjuku Gyoen",ll:[35.6851763,139.7100517],phone:"+81333500151",walk:true},
+   {ic:"🌿",tag:"Garden",opt:true,name:"Shinjuku Gyoen",wiki:"Shinjuku Gyo-en",desc:"Spacious landscaped garden — an optional calm start (closed Mondays).",time:"09:00",trip:"~10-min walk, or Marunouchi to Shinjuku-gyoemmae",pid:"ChIJPyOTG8KMGGARh_IXobWxHmo",q:"Shinjuku Gyoen",ll:[35.6851763,139.7100517],phone:"+81333500151",walk:true},
    {ic:"🥷",tag:"Show",name:"Samurai Restaurant",desc:"Wild neon cabaret with samurai, drummers & dancers (the old Robot Restaurant's successor).",time:"10:30 show",trip:"~12-min walk to Kabukicho",entry:"Kabukicho 1-7-7 B1F — redeem at the Gira Gira Girls desk. Arrive 15 min early; ID (18+).",pid:"ChIJ9eLvweSNGGARpLA8HtSkuC0",q:"Samurai Restaurant Kabukicho",ll:[35.6942728,139.7027663],phone:"+81362056100",walk:true},
-   {ic:"🐟",tag:"Market · Lunch",name:"Tsukiji Market + Seagen",desc:"Buzzing seafood-stall street; lunch at Seagen for its famous overflowing tuna bowls.",time:"12:00 · lunch",trip:"Toei Oedo Shinjuku→Tsukijishijo (~25 min)",entry:"Seagen closed Wed/Thu.",pid:"ChIJ1x_6sReLGGARAzSUSIFloxs",q:"Tsukiji Outer Market",ll:[35.6649205,139.7704994],phone:"+81362604808",transit:true},
-   {ic:"🏯",tag:"Garden",opt:true,name:"Imperial Palace East Gardens",desc:"Stone walls and gardens of the old Edo Castle grounds (optional).",time:"13:30",trip:"Hibiya Tsukiji→Otemachi (~8 min)",pid:"ChIJPfFaQhOMGGAR-QPbNQoAG6M",q:"Imperial Palace East Gardens",ll:[35.6867824,139.7571445],phone:"+81332132050"},
-   {ic:"🐠",tag:"Art · Shop",name:"Ginza + Art Aquarium",desc:"Upscale shopping district; Art Aquarium = goldfish in glowing, art-lit tanks (Mitsukoshi 9F).",time:"14:30",trip:"Marunouchi Otemachi→Ginza",pid:"ChIJ6UVSHl2JGGARDurMrMPwvdk",q:"Art Aquarium Ginza",ll:[35.6707772,139.7661131],phone:"+81335286721"},
-   {ic:"⛩️",tag:"Shrine",opt:true,name:"Hie Shrine",desc:"Hillside shrine with a photogenic tunnel of red torii gates (optional).",time:"16:00 · Akasaka",trip:"Ginza line Ginza→Tameike-sanno (~8 min)",pid:"ChIJF0MR5MSmH2ARj3x0ov0aQ-8",q:"Hie Shrine Tokyo",ll:[35.6746656,139.7399379],phone:"+81335812471"},
-   {ic:"🗼",tag:"Landmark",name:"Tokyo Tower",desc:"Tokyo's iconic red-and-white tower, glowing as the light fades.",time:"16:45",trip:"to Kamiyacho/Akabanebashi (~12 min)",pid:"ChIJCewJkL2LGGAR3Qmk0vCTGkg",q:"Tokyo Tower",ll:[35.6585805,139.7454329],phone:"+81334335111"},
-   {ic:"🌃",tag:"Viewpoint",name:"Azabudai Sky Lobby",desc:"34F lookout with a postcard view straight at Tokyo Tower (small cafe charge).",time:"17:30",trip:"~8-min walk; lift by Hermès to 34F",pid:"ChIJ0bV6TSiLGGARyYzP8x8btPs",q:"Azabudai Sky Lobby",ll:[35.661213,139.7405899],phone:"+81364338100",walk:true},
-   {ic:"🎆",tag:"Museum",name:"teamLab Borderless",desc:"Immersive, room-filling digital art you wander through — no map, art moves between rooms (booked).",time:"18:00 · booked",trip:"Same complex — Garden Plaza B, B1",entry:"Arrive 10 min early; show QR; wear pants (mirror floors); same-day re-entry OK.",pid:"ChIJQ5Sa1PqJGGARUSaNKKOrMVg",q:"teamLab Borderless",ll:[35.6620689,139.7432671],phone:"+81362309666",walk:true},
+   {ic:"🐟",tag:"Market · Lunch",name:"Tsukiji Market + Seagen",wiki:"Tsukiji fish market",desc:"Buzzing seafood-stall street; lunch at Seagen for its famous overflowing tuna bowls.",time:"12:00 · lunch",trip:"Toei Oedo Shinjuku→Tsukijishijo (~25 min)",entry:"Seagen closed Wed/Thu.",pid:"ChIJ1x_6sReLGGARAzSUSIFloxs",q:"Tsukiji Outer Market",ll:[35.6649205,139.7704994],phone:"+81362604808",transit:true},
+   {ic:"🏯",tag:"Garden",opt:true,name:"Imperial Palace East Gardens",wiki:"Tokyo Imperial Palace",desc:"Stone walls and gardens of the old Edo Castle grounds (optional).",time:"13:30",trip:"Hibiya Tsukiji→Otemachi (~8 min)",pid:"ChIJPfFaQhOMGGAR-QPbNQoAG6M",q:"Imperial Palace East Gardens",ll:[35.6867824,139.7571445],phone:"+81332132050"},
+   {ic:"🐠",tag:"Art · Shop",name:"Ginza + Art Aquarium",wiki:"Ginza",desc:"Upscale shopping district; Art Aquarium = goldfish in glowing, art-lit tanks (Mitsukoshi 9F).",time:"14:30",trip:"Marunouchi Otemachi→Ginza",pid:"ChIJ6UVSHl2JGGARDurMrMPwvdk",q:"Art Aquarium Ginza",ll:[35.6707772,139.7661131],phone:"+81335286721"},
+   {ic:"⛩️",tag:"Shrine",opt:true,name:"Hie Shrine",wiki:"Hie Shrine",desc:"Hillside shrine with a photogenic tunnel of red torii gates (optional).",time:"16:00 · Akasaka",trip:"Ginza line Ginza→Tameike-sanno (~8 min)",pid:"ChIJF0MR5MSmH2ARj3x0ov0aQ-8",q:"Hie Shrine Tokyo",ll:[35.6746656,139.7399379],phone:"+81335812471"},
+   {ic:"🗼",tag:"Landmark",name:"Tokyo Tower",wiki:"Tokyo Tower",desc:"Tokyo's iconic red-and-white tower, glowing as the light fades.",time:"16:45",trip:"to Kamiyacho/Akabanebashi (~12 min)",pid:"ChIJCewJkL2LGGAR3Qmk0vCTGkg",q:"Tokyo Tower",ll:[35.6585805,139.7454329],phone:"+81334335111"},
+   {ic:"🌃",tag:"Viewpoint",name:"Azabudai Sky Lobby",wiki:"Azabudai Hills",desc:"34F lookout with a postcard view straight at Tokyo Tower (small cafe charge).",time:"17:30",trip:"~8-min walk; lift by Hermès to 34F",pid:"ChIJ0bV6TSiLGGARyYzP8x8btPs",q:"Azabudai Sky Lobby",ll:[35.661213,139.7405899],phone:"+81364338100",walk:true},
+   {ic:"🎆",tag:"Museum",name:"teamLab Borderless",wiki:"TeamLab",desc:"Immersive, room-filling digital art you wander through — no map, art moves between rooms (booked).",time:"18:00 · booked",trip:"Same complex — Garden Plaza B, B1",entry:"Arrive 10 min early; show QR; wear pants (mirror floors); same-day re-entry OK.",pid:"ChIJQ5Sa1PqJGGARUSaNKKOrMVg",q:"teamLab Borderless",ll:[35.6620689,139.7432671],phone:"+81362309666",walk:true},
    {ic:"🥩",tag:"Dinner",name:"YORONIKU",desc:"Premium private-room wagyu yakiniku — the big celebration dinner (reserved).",time:"20:00 · reserved",trip:"Same complex (Azabudai Hills, 3F)",entry:"Give the reservation name; private-room yakiniku.",pid:"ChIJlxvZDOCLGGARQ10Mv2O_HA4",q:"Yoroniku Azabudai",ll:[35.6611575,139.7407835],phone:"+81355494629",walk:true}
  ]},
  {date:"2026-06-24", e:"👘", title:"Jun 24 · Wed — East Tokyo", sum:"Kimono in Asakusa, Skytree, Akihabara", area:"Kimono + Skytree + Akihabara", stops:[
-   {ic:"👘",tag:"Temple · Kimono",name:"Kimono + Sensō-ji (Asakusa)",desc:"Rent kimono, then Tokyo's oldest temple, the Nakamise souvenir street & Kappabashi kitchen town.",time:"09:30",trip:"~40 min Metro to Asakusa",entry:"Change at your kimono shop first; return it by ~5pm.",pid:"ChIJ8T1GpMGOGGARDYGSgpooDWw",q:"Senso-ji",ll:[35.7147651,139.7966553],phone:"+81338420181",transit:true},
-   {ic:"🗼",tag:"Viewpoint · Lunch",name:"Tokyo Skytree + Toriton",desc:"Japan's tallest tower (634m); Hokkaido conveyor-belt sushi (Toriton) in the mall below.",time:"13:15 · Solamachi 6F",trip:"Tobu Asakusa→Skytree (1 stop, ~3 min)",pid:"ChIJ35ov0dCOGGARKvdDH7NPHX0",q:"Tokyo Skytree",ll:[35.7100627,139.8107004],phone:"+81356377716"},
-   {ic:"🎮",tag:"District",name:"Akihabara",desc:"Electronics & anime mecca — arcades, gachapon capsule toys, retro games.",time:"15:30",trip:"~15-20 min via Asakusa → Ginza line",pid:"ChIJzdWdgh2MGGARh4kg2pVZL3c",q:"Akihabara Electric Town",ll:[35.6996473,139.7713703]},
+   {ic:"👘",tag:"Temple · Kimono",name:"Kimono + Sensō-ji (Asakusa)",wiki:"Sensō-ji",desc:"Rent kimono, then Tokyo's oldest temple, the Nakamise souvenir street & Kappabashi kitchen town.",time:"09:30",trip:"~40 min Metro to Asakusa",entry:"Change at your kimono shop first; return it by ~5pm.",pid:"ChIJ8T1GpMGOGGARDYGSgpooDWw",q:"Senso-ji",ll:[35.7147651,139.7966553],phone:"+81338420181",transit:true},
+   {ic:"🗼",tag:"Viewpoint · Lunch",name:"Tokyo Skytree + Toriton",wiki:"Tokyo Skytree",desc:"Japan's tallest tower (634m); Hokkaido conveyor-belt sushi (Toriton) in the mall below.",time:"13:15 · Solamachi 6F",trip:"Tobu Asakusa→Skytree (1 stop, ~3 min)",pid:"ChIJ35ov0dCOGGARKvdDH7NPHX0",q:"Tokyo Skytree",ll:[35.7100627,139.8107004],phone:"+81356377716"},
+   {ic:"🎮",tag:"District",name:"Akihabara",wiki:"Akihabara",desc:"Electronics & anime mecca — arcades, gachapon capsule toys, retro games.",time:"15:30",trip:"~15-20 min via Asakusa → Ginza line",pid:"ChIJzdWdgh2MGGARh4kg2pVZL3c",q:"Akihabara Electric Town",ll:[35.6996473,139.7713703]},
    {ic:"🍖",tag:"Dinner",name:"Hunters Bar",desc:"Monster Hunter themed bar-restaurant — themed dishes and game-world decor.",time:"19:00",trip:"5-min walk",pid:"ChIJ1yJboNmMGGAROQ_3m68YQfU",q:"Hunters Bar Akihabara",ll:[35.6978007,139.7703246],phone:"+81120196759",walk:true}
  ]},
  {date:"2026-06-25", e:"🚄", title:"Jun 25 · Thu — Tokyo → Osaka", sum:"Bullet train, then Dotonbori at night", area:"Travel day", stops:[
-   {ic:"🚄",tag:"Travel",name:"Shinkansen: Tokyo → Shin-Osaka",desc:"Bullet train, ~2h30. Book reserved seats on the SmartEX app.",time:"~10:45",trip:"Shinjuku → Tokyo Station first",q:"Tokyo Station",ll:[35.6812,139.7671]},
+   {ic:"🚄",tag:"Travel",name:"Shinkansen: Tokyo → Shin-Osaka",wiki:"Tokyo Station",desc:"Bullet train, ~2h30. Book reserved seats on the SmartEX app.",time:"~10:45",trip:"Shinjuku → Tokyo Station first",q:"Tokyo Station",ll:[35.6812,139.7671]},
    {ic:"🏨",tag:"Hotel",name:"LIBER Hotel — check in",desc:"Bay-side Osaka hotel right next to Universal. Evening: head to Dotonbori for street food.",time:"~14:00",trip:"JR Loop → Nishikujo → Yumesaki line",pid:"ChIJafF5azTpAGARWJn-33drztw",q:"LIBER Hotel Osaka",ll:[34.661254,135.432892],phone:"+81664623333"}
  ]},
  {date:"2026-06-26", e:"🏯", title:"Jun 26 · Fri — Osaka city", sum:"Castle, street food, Umeda sunset", area:"base: LIBER Hotel", stops:[
-   {ic:"🏯",tag:"Castle",name:"Osaka Castle",desc:"Iconic green-and-gold castle keep, ringed by moats and a big park.",time:"09:30",trip:"JR Yumesaki + Loop → Osakajokoen (~35 min)",pid:"ChIJ_TooXM3gAGARQR6hXH3QAQ8",q:"Osaka Castle",ll:[34.6872571,135.5258546],phone:"+81669413044"},
-   {ic:"🦐",tag:"Market · Lunch",name:"Kuromon Ichiba Market",desc:"Covered food market — grill-it-here seafood, fruit, snacks. Lunch.",time:"12:00",trip:"to Nipponbashi (~20 min)",pid:"ChIJXSJB5UHnAGARQcEjvngsHaw",q:"Kuromon Ichiba Market",ll:[34.6653508,135.5062413],phone:"+81666310007"},
-   {ic:"🌈",tag:"Landmark",name:"Dotonbori",desc:"Neon canal strip — the Glico running-man sign, takoyaki, glorious chaos.",time:"13:30",trip:"~8-min walk",pid:"ChIJg2DcJhXnAGARCbeAHoZrPeQ",q:"Dotonbori",ll:[34.6686471,135.5030983],walk:true},
-   {ic:"🗼",tag:"District",name:"Tsutenkaku / Shinsekai",desc:"Retro tower in the old-school Shinsekai quarter; kushikatsu fried skewers.",time:"15:30",trip:"Sakaisuji Nipponbashi→Ebisucho (~6 min)",pid:"ChIJ_0Lgd2DnAGARV0X03lbPy-U",q:"Tsutenkaku",ll:[34.6524992,135.5063058],phone:"+81666419555"},
-   {ic:"🌇",tag:"Viewpoint",name:"Umeda Sky Building",desc:"Floating Garden rooftop observatory — sunset over Osaka.",time:"18:00 · sunset",trip:"Midosuji → Umeda (~15 min) + walk",pid:"ChIJbyd0kIjmAGAR_crecCbjwlc",q:"Umeda Sky Building",ll:[34.7052872,135.4896527]}
+   {ic:"🏯",tag:"Castle",name:"Osaka Castle",wiki:"Osaka Castle",desc:"Iconic green-and-gold castle keep, ringed by moats and a big park.",time:"09:30",trip:"JR Yumesaki + Loop → Osakajokoen (~35 min)",pid:"ChIJ_TooXM3gAGARQR6hXH3QAQ8",q:"Osaka Castle",ll:[34.6872571,135.5258546],phone:"+81669413044"},
+   {ic:"🦐",tag:"Market · Lunch",name:"Kuromon Ichiba Market",wiki:"Kuromon Ichiba",desc:"Covered food market — grill-it-here seafood, fruit, snacks. Lunch.",time:"12:00",trip:"to Nipponbashi (~20 min)",pid:"ChIJXSJB5UHnAGARQcEjvngsHaw",q:"Kuromon Ichiba Market",ll:[34.6653508,135.5062413],phone:"+81666310007"},
+   {ic:"🌈",tag:"Landmark",name:"Dotonbori",wiki:"Dōtonbori",desc:"Neon canal strip — the Glico running-man sign, takoyaki, glorious chaos.",time:"13:30",trip:"~8-min walk",pid:"ChIJg2DcJhXnAGARCbeAHoZrPeQ",q:"Dotonbori",ll:[34.6686471,135.5030983],walk:true},
+   {ic:"🗼",tag:"District",name:"Tsutenkaku / Shinsekai",wiki:"Tsūtenkaku",desc:"Retro tower in the old-school Shinsekai quarter; kushikatsu fried skewers.",time:"15:30",trip:"Sakaisuji Nipponbashi→Ebisucho (~6 min)",pid:"ChIJ_0Lgd2DnAGARV0X03lbPy-U",q:"Tsutenkaku",ll:[34.6524992,135.5063058],phone:"+81666419555"},
+   {ic:"🌇",tag:"Viewpoint",name:"Umeda Sky Building",wiki:"Umeda Sky Building",desc:"Floating Garden rooftop observatory — sunset over Osaka.",time:"18:00 · sunset",trip:"Midosuji → Umeda (~15 min) + walk",pid:"ChIJbyd0kIjmAGAR_crecCbjwlc",q:"Umeda Sky Building",ll:[34.7052872,135.4896527]}
  ]},
  {date:"2026-06-27", e:"⛩️", title:"Jun 27 · Sat — Kyoto", sum:"Torii gates, temples, bamboo", area:"day trip · ~1h each way", stops:[
-   {ic:"⛩️",tag:"Shrine",name:"Fushimi Inari Taisha",desc:"Thousands of vermilion torii gates winding up a mountain — go early to beat crowds.",time:"08:45",trip:"LIBER → Osaka → JR Kyoto → Inari (~70 min)",pid:"ChIJIW0uPRUPAWAR6eI6dRzKGns",q:"Fushimi Inari Taisha",ll:[34.9676945,135.7791876],phone:"+81756417331"},
-   {ic:"🛕",tag:"Temple",name:"Kiyomizu-dera",desc:"Wooden hillside temple with city views, above the old Higashiyama lanes.",time:"11:30",trip:"Keihan → Kiyomizu-Gojo + walk (~25 min)",pid:"ChIJB_vchdMIAWARujTEUIZlr2I",q:"Kiyomizu-dera",ll:[34.9946662,135.784661],phone:"+81755511234"},
-   {ic:"🏮",tag:"District · Lunch",name:"Gion",desc:"Historic geisha quarter — wooden teahouses and lantern-lit lanes. Lunch here.",time:"13:30",trip:"~15-min walk down via Sannenzaka",pid:"ChIJZ3vGwcMIAWARtO-YE6oEyw0",q:"Gion Kyoto",ll:[35.0037816,135.777245],walk:true},
-   {ic:"🎋",tag:"Nature",name:"Arashiyama Bamboo Forest",desc:"Towering bamboo grove, plus the riverside and Tenryū-ji temple.",time:"15:30",trip:"Keihan + Hankyu/JR (~45 min)",pid:"ChIJrYtcv-urAWAR3XzWvXv8n_s",q:"Arashiyama Bamboo Grove",ll:[35.0168187,135.6713013]}
+   {ic:"⛩️",tag:"Shrine",name:"Fushimi Inari Taisha",wiki:"Fushimi Inari-taisha",desc:"Thousands of vermilion torii gates winding up a mountain — go early to beat crowds.",time:"08:45",trip:"LIBER → Osaka → JR Kyoto → Inari (~70 min)",pid:"ChIJIW0uPRUPAWAR6eI6dRzKGns",q:"Fushimi Inari Taisha",ll:[34.9676945,135.7791876],phone:"+81756417331"},
+   {ic:"🛕",tag:"Temple",name:"Kiyomizu-dera",wiki:"Kiyomizu-dera",desc:"Wooden hillside temple with city views, above the old Higashiyama lanes.",time:"11:30",trip:"Keihan → Kiyomizu-Gojo + walk (~25 min)",pid:"ChIJB_vchdMIAWARujTEUIZlr2I",q:"Kiyomizu-dera",ll:[34.9946662,135.784661],phone:"+81755511234"},
+   {ic:"🏮",tag:"District · Lunch",name:"Gion",wiki:"Gion",desc:"Historic geisha quarter — wooden teahouses and lantern-lit lanes. Lunch here.",time:"13:30",trip:"~15-min walk down via Sannenzaka",pid:"ChIJZ3vGwcMIAWARtO-YE6oEyw0",q:"Gion Kyoto",ll:[35.0037816,135.777245],walk:true},
+   {ic:"🎋",tag:"Nature",name:"Arashiyama Bamboo Forest",wiki:"Arashiyama",desc:"Towering bamboo grove, plus the riverside and Tenryū-ji temple.",time:"15:30",trip:"Keihan + Hankyu/JR (~45 min)",pid:"ChIJrYtcv-urAWAR3XzWvXv8n_s",q:"Arashiyama Bamboo Grove",ll:[35.0168187,135.6713013]}
  ]},
  {date:"2026-06-28", e:"🦌", title:"Jun 28 · Sun — Nara", sum:"Deer park & the Great Buddha", area:"day trip · stops walkable", stops:[
-   {ic:"🦌",tag:"Park",name:"Nara Park (deer)",desc:"Hundreds of free-roaming, bowing deer — buy ¥200 crackers to feed them.",time:"10:00",trip:"LIBER → Osaka → Kintetsu-Nara (~70 min)",pid:"ChIJYWCMvZY5AWARVnREV_OsbPk",q:"Nara Park",ll:[34.685047,135.843012],phone:"+81742220375"},
-   {ic:"🛕",tag:"Temple",name:"Tōdai-ji",desc:"Vast wooden hall housing a giant bronze Buddha — the must-see.",time:"10:45",trip:"~12-min walk through the park",pid:"ChIJ3XYIepA5AWARjzzVnT-skPg",q:"Todai-ji",ll:[34.6889851,135.8398158],phone:"+81742225511",walk:true},
-   {ic:"🏮",tag:"Shrine",name:"Kasuga Taisha",desc:"Forest shrine lined with thousands of stone and bronze lanterns.",time:"12:30",trip:"~12-min walk",pid:"ChIJ1Wqwa8A5AWARlpXjgoPnl0w",q:"Kasuga Taisha",ll:[34.6815454,135.8484719],phone:"+81742227788",walk:true}
+   {ic:"🦌",tag:"Park",name:"Nara Park (deer)",wiki:"Nara Park",desc:"Hundreds of free-roaming, bowing deer — buy ¥200 crackers to feed them.",time:"10:00",trip:"LIBER → Osaka → Kintetsu-Nara (~70 min)",pid:"ChIJYWCMvZY5AWARVnREV_OsbPk",q:"Nara Park",ll:[34.685047,135.843012],phone:"+81742220375"},
+   {ic:"🛕",tag:"Temple",name:"Tōdai-ji",wiki:"Tōdai-ji",desc:"Vast wooden hall housing a giant bronze Buddha — the must-see.",time:"10:45",trip:"~12-min walk through the park",pid:"ChIJ3XYIepA5AWARjzzVnT-skPg",q:"Todai-ji",ll:[34.6889851,135.8398158],phone:"+81742225511",walk:true},
+   {ic:"🏮",tag:"Shrine",name:"Kasuga Taisha",wiki:"Kasuga-taisha",desc:"Forest shrine lined with thousands of stone and bronze lanterns.",time:"12:30",trip:"~12-min walk",pid:"ChIJ1Wqwa8A5AWARlpXjgoPnl0w",q:"Kasuga Taisha",ll:[34.6815454,135.8484719],phone:"+81742227788",walk:true}
  ]},
  {date:"2026-06-29", e:"🎢", title:"Jun 29 · Mon — Universal + onsen", sum:"Theme park, then a private hot-spring", area:"base: LIBER Hotel", stops:[
-   {ic:"🎢",tag:"Theme park",name:"Universal Studios Japan",desc:"Super Nintendo World & Harry Potter. Arrive at opening; we have Express Pass.",time:"09:00",trip:"JR Sakurajima→Universal City (~6 min)",entry:"Main gate. Have Studio Pass + Express Pass QR ready.",pid:"ChIJXeLVg9DgAGARqlIyMCX-BTY",q:"Universal Studios Japan",ll:[34.6656768,135.4323185],phone:"+81570200606"},
+   {ic:"🎢",tag:"Theme park",name:"Universal Studios Japan",wiki:"Universal Studios Japan",desc:"Super Nintendo World & Harry Potter. Arrive at opening; we have Express Pass.",time:"09:00",trip:"JR Sakurajima→Universal City (~6 min)",entry:"Main gate. Have Studio Pass + Express Pass QR ready.",pid:"ChIJXeLVg9DgAGARqlIyMCX-BTY",q:"Universal Studios Japan",ll:[34.6656768,135.4323185],phone:"+81570200606"},
    {ic:"♨️",tag:"Onsen",name:"Solaniwa Onsen",desc:"Hot-spring complex; we booked a private open-air bath to unwind after the park.",time:"19:00 · reserved",trip:"JR to Bentencho (~12 min)",entry:"Reception → give the private-bath (kashikiri) reservation.",pid:"ChIJh2z_4A3nAGARROaafpvGXBQ",q:"Solaniwa Onsen",ll:[34.6703579,135.4595476],phone:"+81667705126"}
  ]},
  {date:"2026-06-30", e:"✈️", title:"Jun 30 · Tue — Home", sum:"Bullet train back, then fly out", area:"Big travel day", stops:[
    {ic:"🚄",tag:"Travel",name:"Shinkansen Shin-Osaka → Tokyo",desc:"Bullet train back, ~2h30. Leave Osaka early afternoon.",time:"~13:30",trip:"Hotel → Shin-Osaka",q:"Shin-Osaka Station",ll:[34.7332,135.5003]},
-   {ic:"✈️",tag:"Flight",name:"Narita Airport T2",desc:"Be at the airport by ~19:25 for the 22:25 flight home.",time:"QR807 · 22:25",trip:"Tokyo → Narita N'EX (~80-90 min)",q:"Narita Airport Terminal 2",ll:[35.7720,140.3929]}
+   {ic:"✈️",tag:"Flight",name:"Narita Airport T2",wiki:"Narita International Airport",desc:"Be at the airport by ~19:25 for the 22:25 flight home.",time:"QR807 · 22:25",trip:"Tokyo → Narita N'EX (~80-90 min)",q:"Narita Airport Terminal 2",ll:[35.7720,140.3929]}
  ]}
 ];
 
@@ -185,6 +189,21 @@ TRIP.forEach((d,di)=>{
   chips.appendChild(a);
 });
 
+const wikiCache={};
+function fillPhotos(){
+  document.querySelectorAll('img.photo[data-wiki]').forEach(img=>{
+    if(img.dataset.loaded) return;
+    const t=img.getAttribute('data-wiki');
+    const apply=src=>{ img.onerror=()=>{img.style.display='none';}; img.src=src; img.style.display='block'; img.dataset.loaded='1'; };
+    if(wikiCache[t]){ if(wikiCache[t]!=='none') apply(wikiCache[t]); return; }
+    fetch('https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1&prop=pageimages&piprop=thumbnail&pithumbsize=800&titles='+encodeURIComponent(t))
+      .then(r=>r.json()).then(d=>{
+        const pages=d&&d.query&&d.query.pages; const p=pages&&Object.values(pages)[0];
+        if(p&&p.thumbnail&&p.thumbnail.source){ wikiCache[t]=p.thumbnail.source; apply(p.thumbnail.source); }
+        else { wikiCache[t]='none'; }
+      }).catch(()=>{});
+  });
+}
 function render(){
   const root=document.getElementById('days'); root.innerHTML='';
   TRIP.forEach((day,di)=>{
@@ -199,12 +218,13 @@ function render(){
       const phone=s.phone?'<a class="act call" href="tel:'+s.phone+'">Call</a>':'';
       const entry=s.entry?'<br><span class="entry">🎟 '+s.entry+'</span>':'';
       html+='<div class="stop'+(s.opt?' opt':'')+(dn?' done':'')+'">'+
-        '<div class="icon">'+s.ic+'<div class="num" data-d="'+di+'" data-s="'+si+'">'+(dn?'✓':(si+1))+'</div></div>'+
+        (s.wiki?'<img class="photo" data-wiki="'+s.wiki+'" alt="'+s.name+'">':'')+
+        '<div class="stopbody"><div class="icon">'+s.ic+'<div class="num" data-d="'+di+'" data-s="'+si+'">'+(dn?'✓':(si+1))+'</div></div>'+
         '<div class="meta"><div class="nrow"><span class="name">'+s.name+'</span><span class="tag'+(s.opt?' opt':'')+'">'+s.tag+'</span></div>'+
         '<div class="desc">'+s.desc+'</div>'+
         '<div class="note">⏰ '+s.time+'<br><span class="trip">🚃 '+s.trip+'</span>'+entry+'</div>'+
         '<div class="acts"><a class="act go" target="_blank" rel="noopener" href="'+dirUrl(s)+'">Navigate ▶</a>'+phone+
-        '<a class="act view" target="_blank" rel="noopener" href="'+viewUrl(s)+'">📍 Map</a></div></div></div>';
+        '<a class="act view" target="_blank" rel="noopener" href="'+viewUrl(s)+'">📍 Map</a></div></div></div></div>';
     });
     det.innerHTML=html;
     root.appendChild(det);
@@ -214,6 +234,7 @@ function render(){
   document.querySelectorAll('.num').forEach(n=>n.addEventListener('click',ev=>{
     ev.preventDefault(); const k=key(n.dataset.d,n.dataset.s); done[k]=!done[k]; save(done); render();
   }));
+  fillPhotos();
 }
 function initMap(di){
   const el=document.getElementById('map'+di);
@@ -242,6 +263,14 @@ document.getElementById('expand').addEventListener('click',e=>{
   ds.forEach(d=>{ d.open=anyClosed; }); e.target.textContent=anyClosed?'Collapse all':'Expand all';
 });
 document.getElementById('reset').addEventListener('click',()=>{ if(confirm('Clear all checked-off stops?')){ done={}; save(done); render(); }});
+
+document.getElementById('share').addEventListener('click', async ()=>{
+  const url=location.href;
+  try{
+    if(navigator.share){ await navigator.share({title:'Our Japan Trip 🇯🇵', text:'Our Japan plan — schedule, maps & directions', url}); }
+    else { await navigator.clipboard.writeText(url); alert('Link copied — paste it to your friend!'); }
+  }catch(e){}
+});
 
 if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 </script>
