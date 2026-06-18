@@ -86,7 +86,7 @@
     <div class="gcard"><div class="k">Osaka base</div>LIBER Hotel, bay/Sakurajima (Jun 25–30)</div>
     <div class="gcard"><div class="k">Fly home</div>Jun 30, 22:25 from Narita</div>
     <div class="gcard full"><div class="k">Getting around</div>Grab a <b>Suica</b> IC card on arrival (or add one to Apple Wallet) — tap on/off every train &amp; bus and pay at konbini. <b>Tokyo:</b> JR Yamanote loop + Metro reach it all. <b>Osaka:</b> JR Loop + Midosuji subway. <b>Tokyo↔Osaka:</b> Shinkansen ~2h30. <b>Airport:</b> Narita N'EX. Download Google Maps offline areas for both cities. Rainy season — pack an umbrella.</div>
-    <div class="gcard full"><div class="k">⚠️ Still to book</div>Universal Studios tickets + Express Pass · Shinkansen Tokyo↔Osaka (SmartEX app) · Suica IC cards (grab on arrival) · airport transfers (N'EX). Everything else below is locked in.</div>
+    <div class="gcard full"><div class="k">✅ All locked in</div>Every activity, the Universal Studio Passes and both Shinkansen rides (SmartEX) are booked. All that's left is day-one setup — Suica, your N'EX ticket, cash &amp; data — laid out in <b>When you land</b> below.</div>
   </div>
 
   <div class="legend">
@@ -148,7 +148,7 @@ const TRIP = [
    {ic:"🎆",tag:"Museum",name:"teamLab Borderless",wiki:"Digital art",desc:"Immersive, room-filling digital art you wander through — art moves between rooms, no fixed map (booked 18:30; moved here since it's closed the 23rd).",time:"18:30 · booked",trip:"Akihabara → Azabudai Hills (~30 min); Garden Plaza B, B1",entry:"Azabudai Hills, Garden Plaza B B1F. Ticket is in the teamLab app/link (released 24h before · ref A3VTUKWY4A7Y-0001). Wear pants (mirror floors). No re-entry once you leave; stay as long as you like.",pid:"ChIJQ5Sa1PqJGGARUSaNKKOrMVg",q:"teamLab Borderless",ll:[35.6620689,139.7432671],phone:"+81362309666"}
  ]},
  {date:"2026-06-25", e:"🚄", title:"Jun 25 · Thu — Tokyo → Osaka", sum:"Bullet train to Osaka, settle in", area:"Travel day", stops:[
-   {ic:"🚄",tag:"Travel",name:"Shinkansen: Tokyo → Shin-Osaka",wiki:"Tokyo Station",desc:"Bullet train, ~2h30. ⚠️ Still to book: reserved seats on the SmartEX app.",time:"~10:45",trip:"Shinjuku → Tokyo Station first",q:"Tokyo Station",ll:[35.6812,139.7671]},
+   {ic:"🚄",tag:"Travel",name:"Shinkansen: Tokyo → Shin-Osaka",wiki:"Tokyo Station",desc:"Bullet train, ~2h30. Reserved seats booked on SmartEX — have the app open and tap your linked Suica through the gate.",time:"~10:45",trip:"Shinjuku → Tokyo Station first",q:"Tokyo Station",ll:[35.6812,139.7671]},
    {ic:"🏨",tag:"Hotel",name:"LIBER Hotel — check in",wiki:"Osaka Bay",desc:"Bay-side Osaka hotel right next to Universal. Evening: settle in and grab dinner near the bay (save Dotonbori for tomorrow night).",time:"~14:00",trip:"JR Loop → Nishikujo → Yumesaki line",pid:"ChIJafF5azTpAGARWJn-33drztw",q:"LIBER Hotel Osaka",ll:[34.661254,135.432892],phone:"+81664623333"}
  ]},
  {date:"2026-06-26", e:"🏯", title:"Jun 26 · Fri — Osaka city", sum:"Castle, Shinsekai, Umeda sunset & Dotonbori neon", area:"base: LIBER Hotel", stops:[
@@ -174,7 +174,7 @@ const TRIP = [
    {ic:"♨️",tag:"Onsen",name:"Solaniwa Onsen",wiki:"Onsen",desc:"Hot-spring complex; we booked a private open-air bath to unwind after the park.",time:"19:00 · reserved",trip:"JR to Bentencho (~12 min)",entry:"Reception → give the private-bath (kashikiri) reservation.",pid:"ChIJh2z_4A3nAGARROaafpvGXBQ",q:"Solaniwa Onsen",ll:[34.6703579,135.4595476],phone:"+81667705126"}
  ]},
  {date:"2026-06-30", e:"✈️", title:"Jun 30 · Tue — Home", sum:"Bullet train back, then fly out", area:"Big travel day", stops:[
-   {ic:"🚄",tag:"Travel",name:"Shinkansen Shin-Osaka → Tokyo",wiki:"N700 Series Shinkansen",desc:"Bullet train back, ~2h30. ⚠️ Book reserved seats (SmartEX). Leave Osaka early afternoon.",time:"~13:30",trip:"Hotel → Shin-Osaka",q:"Shin-Osaka Station",ll:[34.7332,135.5003]},
+   {ic:"🚄",tag:"Travel",name:"Shinkansen Shin-Osaka → Tokyo",wiki:"N700 Series Shinkansen",desc:"Bullet train back, ~2h30. Seats booked on SmartEX. Leave Osaka early afternoon.",time:"~13:30",trip:"Hotel → Shin-Osaka",q:"Shin-Osaka Station",ll:[34.7332,135.5003]},
    {ic:"✈️",tag:"Flight",name:"Narita Airport T2",wiki:"Narita International Airport",desc:"Be at the airport by ~19:25 for the 22:25 flight home.",time:"QR807 · 22:25",trip:"Tokyo → Narita N'EX (~80-90 min)",q:"Narita Airport Terminal 2",ll:[35.7720,140.3929]}
  ]}
 ];
@@ -265,7 +265,7 @@ render();
 const TODO=[
  "Set up Welcome Suica — open the Welcome Suica Mobile app and create your card (only works once you're in Japan), then top it up with Apple Pay. This one card covers all local trains in Tokyo, Osaka, Kyoto and Nara.",
  "Buy the N'EX Tokyo Round Trip ticket at the JR EAST counter in the airport station (¥5,000 per person, passport needed, valid 14 days). Reserve your outbound seat to Shinjuku now; keep the return half for Tokyo Station → Narita on Jun 30.",
- "Set up SmartEX and book the two bullet-train rides (Jun 25 Tokyo → Shin-Osaka, Jun 30 Shin-Osaka → Tokyo), then link your Suica so you tap through the gate. (This one can be done in advance from home.)",
+ "SmartEX — your two bullet-train rides (Jun 25 Tokyo → Shin-Osaka, Jun 30 Shin-Osaka → Tokyo) are booked; just have the app installed and your Suica linked so you tap straight through the gate.",
  "Get some cash — withdraw yen at a 7-Bank or Japan Post ATM (many small places are cash-only).",
  "Pocket wifi / eSIM — pick up or activate your data if you haven't already."
 ];
