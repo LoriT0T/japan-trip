@@ -65,6 +65,10 @@
   footer{ color:var(--sub); font-size:12px; line-height:1.7; margin-top:20px; border-top:1px solid var(--line); padding-top:14px; }
   footer b{ color:var(--txt); }
   .leaflet-container{ font-family:inherit; }
+  .tnum{ position:absolute; margin:-8px 0 0 -8px; width:19px; height:19px; border-radius:50%; background:var(--go); color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; border:1.5px solid var(--card); cursor:pointer; }
+  .stop.done .tnum{ background:var(--call); }
+  .todo .name{ font-weight:600; font-size:13.5px; line-height:1.5; }
+  .ref .lead{ color:#fff; font-weight:700; }
 </style>
 </head>
 <body>
@@ -98,6 +102,9 @@
     <button id="expand">Expand all</button>
     <button id="reset">Reset checks</button>
   </div>
+
+  <h2 class="sec">Arrival &amp; getting around</h2>
+  <div id="arrival"></div>
 
   <h2 class="sec">Day by day</h2>
   <div id="days"></div>
@@ -253,6 +260,54 @@ function initMap(di){
   el._init=true; setTimeout(()=>map.invalidateSize(),120);
 }
 render();
+
+// --- Arrival & getting around (separate jp_todo storage) ---
+const TODO=[
+ "Set up Welcome Suica — open the Welcome Suica Mobile app and create your card (only works once you're in Japan), then top it up with Apple Pay. This one card covers all local trains in Tokyo, Osaka, Kyoto and Nara.",
+ "Buy the N'EX Tokyo Round Trip ticket at the JR EAST counter in the airport station (¥5,000 per person, passport needed, valid 14 days). Reserve your outbound seat to Shinjuku now; keep the return half for Tokyo Station → Narita on Jun 30.",
+ "Set up SmartEX and book the two bullet-train rides (Jun 25 Tokyo → Shin-Osaka, Jun 30 Shin-Osaka → Tokyo), then link your Suica so you tap through the gate. (This one can be done in advance from home.)",
+ "Get some cash — withdraw yen at a 7-Bank or Japan Post ATM (many small places are cash-only).",
+ "Pocket wifi / eSIM — pick up or activate your data if you haven't already."
+];
+const TODO_IC=["🎫","🚆","🚄","💴","📶"];
+const REFS=[
+ {e:"🚉",t:"Narita → Keio Plaza Hotel",s:"airport transfer",rows:[
+   {lead:"Easiest (door-to-door):",ic:"🚌",text:"Airport Limousine Bus. Buy a ticket in the arrivals hall for the Shinjuku line, say \"Keio Plaza Hotel\" — it stops at the hotel door. ~75–90 min, ~¥3,600 each."},
+   {lead:"Fastest:",ic:"🚆",text:"Narita Express (N'EX). Direct to Shinjuku Station (~80–90 min; covered by your round-trip ticket), then a 5-min taxi or 7-min walk to the hotel."},
+   {lead:"Note:",ic:"⏰",text:"arrival is Terminal 2 at 19:10; both run late enough — confirm the last departure when you buy."}
+ ]},
+ {e:"🚃",t:"Using Tokyo trains",s:"quick reference",rows:[
+   {ic:"💳",text:"Tap your Suica (or phone) on the reader to enter, tap again to exit — fare is automatic."},
+   {ic:"🗺️",text:"Plan each trip in Google Maps; it gives the line, platform, and the exit number — follow it, especially at Shinjuku/Shibuya."},
+   {ic:"🟢",text:"The JR Yamanote loop links Shinjuku, Harajuku, Shibuya, Tokyo, Akihabara and Ueno."},
+   {ic:"⏰",text:"Avoid rush hour (~7:30–9:30am, 5:30–7:30pm) with luggage; last trains run ~midnight."},
+   {ic:"💴",text:"Top up at any green ticket machine (English → \"Charge\"), a convenience-store register, or in the app."}
+ ]}
+];
+function loadTodo(){ try{ return JSON.parse(localStorage.getItem('jp_todo')||'{}'); }catch(e){ return {}; } }
+function saveTodo(o){ try{ localStorage.setItem('jp_todo', JSON.stringify(o)); }catch(e){} }
+let todo=loadTodo();
+function renderArrival(){
+  const root=document.getElementById('arrival'); if(!root) return;
+  const cnt=TODO.filter((_,i)=>todo[i]).length;
+  let h='<details id="todocard" open><summary><span class="e">✈️</span><span class="summeta"><div class="t">When you land (Jun 21)</div><div class="s">first things to do</div></span><span class="prog">'+cnt+'/'+TODO.length+'</span></summary>';
+  TODO.forEach((it,i)=>{ const dn=todo[i];
+    h+='<div class="stop todo'+(dn?' done':'')+'"><div class="stopbody"><div class="icon">'+TODO_IC[i]+'<div class="tnum" data-t="'+i+'">'+(dn?'✓':(i+1))+'</div></div><div class="meta"><div class="name">'+it+'</div></div></div></div>';
+  });
+  h+='</details>';
+  REFS.forEach(r=>{
+    h+='<details><summary><span class="e">'+r.e+'</span><span class="summeta"><div class="t">'+r.t+'</div><div class="s">'+r.s+'</div></span></summary>';
+    r.rows.forEach(row=>{
+      h+='<div class="stop ref"><div class="stopbody"><div class="icon">'+row.ic+'</div><div class="meta"><div class="desc">'+(row.lead?'<span class="lead">'+row.lead+'</span> ':'')+row.text+'</div></div></div></div>';
+    });
+    h+='</details>';
+  });
+  root.innerHTML=h;
+  root.querySelectorAll('.tnum[data-t]').forEach(n=>n.addEventListener('click',ev=>{
+    ev.preventDefault(); const i=n.dataset.t; todo[i]=!todo[i]; saveTodo(todo); renderArrival();
+  }));
+}
+renderArrival();
 
 document.getElementById('today').addEventListener('click',()=>{
   const t=document.querySelector('details.today')||document.querySelector('details');
